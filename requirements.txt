@@ -1,0 +1,10 @@
+# Bibliotecas usadas no projeto. Para instalar:
+#   pip install -r requirements.txt
+# Ainda sem versões fixadas; depois de validar o projeto, rode "pip freeze" para registrar as versões.
+basedosdados
+pandas
+matplotlib
+seaborn
+pyarrow      # salvar e ler os arquivos .parquet de data/processed
+ipykernel    # rodar os notebooks no VS Code
+nbformat     # permite rodar um notebook dentro de outro com %run

@@ -1,0 +1,15 @@
+# Ambiente virtual e arquivos temporários do Python/Jupyter
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+
+# Dados: são recriados ao rodar os notebooks (as pastas ficam, os arquivos não)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Credenciais e configurações locais: nunca enviar para o Git
+.env
+*credentials*.json
+*service-account*.json
