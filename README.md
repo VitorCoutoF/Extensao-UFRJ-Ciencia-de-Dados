@@ -8,7 +8,7 @@ A pergunta principal é: **quando chove mais, aumentam os chamados sobre árvore
 
 ## Dados utilizados
 
-As consultas usam tabelas públicas do projeto `datario` no BigQuery.
+As consultas usam tabelas públicas dos projetos `datario` e `basedosdados` no BigQuery.
 
 | Tabela | O que cada linha representa | Papel na análise |
 |---|---|---|
@@ -16,6 +16,8 @@ As consultas usam tabelas públicas do projeto `datario` no BigQuery.
 | `datario.clima_pluviometro.taxa_precipitacao_alertario` | Uma medição de uma estação, com acumulados de chuva em diferentes intervalos | Construção de séries diárias e mensais de chuva |
 | `datario.dados_mestres.logradouro` | Um trecho de rua | Identificação de logradouros e caracterização dos bairros |
 | `datario.dados_mestres.bairro` | Um bairro | Associação entre códigos e nomes dos bairros |
+| `basedosdados.br_inmet_bdmep.microdados` | Uma observação por estação e horário UTC | EDA da precipitação horária do INMET no estado do Rio de Janeiro, desde 2021 |
+| `basedosdados.br_inmet_bdmep.estacao` | Uma estação meteorológica | Seleção das estações do RJ e diagnóstico do cadastro |
 
 O recorte principal dos chamados usa `tipo = 'Manejo Arbóreo'` e abertura **a partir de 2021**. Algumas consultas de diagnóstico, como a busca de identificadores duplicados e de chamados sem localização, usam o histórico completo desse tipo. A chuva também é agregada a partir de 2021, mas o período efetivamente disponível precisa ser conferido antes do cruzamento.
 
@@ -40,7 +42,8 @@ Vitor Couto Filho/
 │   ├── 01_eda_chamados_1746.ipynb
 │   ├── 02_eda_clima.ipynb
 │   ├── 03_eda_logradouros.ipynb
-│   └── 04_cruzamentos.ipynb
+│   ├── 04_cruzamentos.ipynb
+│   └── 05_eda_clima_v2.ipynb
 └── src/
     ├── extracao.py
     └── tratamento.py
@@ -53,12 +56,13 @@ Vitor Couto Filho/
 | [notebooks/02_eda_clima.ipynb](notebooks/02_eda_clima.ipynb) | EDA da chuva do Alerta Rio; salva a chuva por estação e dia e a chuva mensal da cidade |
 | [notebooks/03_eda_logradouros.ipynb](notebooks/03_eda_logradouros.ipynb) | EDA dos cadastros de logradouros e bairros; salva as colunas usadas nos cruzamentos |
 | [notebooks/04_cruzamentos.ipynb](notebooks/04_cruzamentos.ipynb) | Primeiros cruzamentos entre chamados, bairros, logradouros e chuva, a partir dos arquivos salvos |
+| [notebooks/05_eda_clima_v2.ipynb](notebooks/05_eda_clima_v2.ipynb) | EDA da chuva do INMET no estado do RJ desde 2021, com consultas diretas, verificação de falhas e duplicatas, totais diários e mensais e gráficos simples; salva tabelas em `data/processed/inmet_rj/` |
 | [docs/dicionario_de_dados.md](docs/dicionario_de_dados.md) | Descrição das tabelas, colunas e problemas identificados |
 | [src/extracao.py](src/extracao.py) | Arquivo reservado para a extração de dados, ainda sem código |
 | [src/tratamento.py](src/tratamento.py) | Arquivo reservado para o tratamento de dados, ainda sem código |
 | [requirements.txt](requirements.txt) | Bibliotecas do projeto, ainda sem versões fixadas |
 
-Ainda não há configuração por `.env` nem exportação automática dos gráficos. O conteúdo de `data/raw/` e `data/processed/` fica fora do Git (veja o `.gitignore`), porque os arquivos são recriados ao executar os notebooks.
+Ainda não há configuração por `.env`. Os gráficos ficam nas saídas dos notebooks. O conteúdo de `data/raw/` e `data/processed/` fica fora do Git (veja o `.gitignore`), porque os arquivos são recriados ao executar os notebooks.
 
 ## Como executar no VS Code
 
@@ -103,6 +107,8 @@ Execute os notebooks da pasta `notebooks/` **na ordem da numeração**, com o me
 2. `02_eda_clima.ipynb`
 3. `03_eda_logradouros.ipynb`
 4. `04_cruzamentos.ipynb`
+
+O `05_eda_clima_v2.ipynb` pode ser executado após configurar a autenticação. Analisa a chuva do INMET no estado do RJ desde 2021, com fim inicialmente definido em 13/10/2026. Reaproveita o arquivo horário salvo quando ele existe. Os totais diários exigem 24 horas válidas, e os totais mensais exigem todos os dias disponíveis. A média diária usa as estações com dia completo e mostra quantas participaram; não representa uma média territorial do estado.
 
 A primeira célula de código de cada um é:
 

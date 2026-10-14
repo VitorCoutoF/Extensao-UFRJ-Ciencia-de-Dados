@@ -53,6 +53,40 @@ Descrição das tabelas usadas no projeto, das colunas que analisamos e dos prob
 
 ---
 
+## Chuva (INMET / BDMEP)
+
+**Tabelas:** `basedosdados.br_inmet_bdmep.microdados` e `basedosdados.br_inmet_bdmep.estacao`
+
+**Notebook:** `notebooks/05_eda_clima_v2.ipynb`
+
+**Recorte:** estações com município cadastrado no estado do Rio de Janeiro (prefixo IBGE `33`), desde 01/01/2021. Referência inicial: 14/10/2026; último dia solicitado: 13/10/2026. A cobertura efetiva é calculada na execução.
+
+| Coluna de origem | O que é |
+|---|---|
+| `ano`, `data`, `hora` | Partição anual, data e horário registrado em UTC |
+| `id_estacao` | Identificador que relaciona medições e cadastro |
+| `precipitacao_total` | Precipitação horária, em mm |
+| `id_municipio`, `estacao`, `data_fundacao` | Município cadastrado, nome e data de fundação da estação |
+
+**Campos derivados e critérios**
+
+- `dia`: dia civil do horário registrado convertido para `America/Sao_Paulo`; pode diferir do dia meteorológico oficial.
+- `chuva_observada_mm`: soma das horas válidas disponíveis na tabela diária. Na tabela mensal, soma a média diária dos dias disponíveis; pode ser parcial.
+- `chuva_mm`: total diário por estação somente com 24 horas válidas. Em `chuva_rede_dia`, é a média das estações com dia completo; em `chuva_rede_mes`, é a soma dessas médias quando todos os dias do mês estão disponíveis.
+- `horas_validas`, `dia_completo`, `dias_validos`, `mes_completo`: indicam quanto do período tem dados. Um dia sem medições não é um dia seco.
+- `estacoes_validas`: número de estações usadas na média de cada dia. A composição da média pode mudar ao longo do período.
+
+**Cuidados**
+
+- Nulos, negativos e valores não finitos são excluídos das somas, sem preencher com zero. Extremos positivos permanecem para investigação.
+- Duplicatas idênticas por estação e horário são consolidadas; valores divergentes invalidam aquela hora.
+- Dias anteriores à fundação não entram no denominador esperado da cobertura. Fundação ausente usa o início solicitado.
+- A média representa os pontos com dados disponíveis, sem ponderação por área.
+- O notebook simplificado salva cinco tabelas: estações, qualidade das estações, chuva por estação e dia, média diária e chuva mensal. Artefatos da versão anterior podem continuar na pasta, mas não são atualizados por esta versão.
+- Bruto em `data/raw/inmet_rj_horario_*.parquet`; tabelas em `data/processed/inmet_rj/`; gráficos nas saídas do notebook.
+
+---
+
 ## Logradouros
 **Tabela:** `datario.dados_mestres.logradouro`
 **Tipo:** cadastro — cada linha é um **trecho** de rua (o pedaço entre dois cruzamentos), não a rua inteira
