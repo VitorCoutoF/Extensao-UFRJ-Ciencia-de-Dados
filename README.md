@@ -147,7 +147,7 @@ O notebook consulta o tamanho da tabela, o número de estações, os extremos de
 
 A série diária é construída somando `acumulado_chuva_15_min` por **estação e dia**, com filtro para valores não negativos. Valores nulos também ficam fora dessa condição. Os acumulados de 1, 4, 24 e 96 horas possuem sobreposição e não são somados para formar o total diário.
 
-O código conta as medições de cada estação em cada dia. Para intervalos de 15 minutos, a referência é **96 medições por dia**. A regra exploratória de `dia_bom` aceita de **90 a 96 medições**, inclusive. Ela admite dias parcialmente incompletos e não substitui uma verificação de duplicatas por horário.
+O código conta as medições de cada estação em cada dia. A tabela `taxa_precipitacao_alertario` gravava a cada 15 minutos (**96 medições por dia**) até 06/02/2024 e passou a gravar a cada 5 minutos (**288 por dia**) a partir de 07/02/2024; a tabela `taxa_precipitacao_alertario_5min` também tem 288. A regra exploratória de `dia_bom` usa a cobertura (medições / esperadas) e aceita de **90% a 100%**: 87 a 96 medições ou 260 a 288. Dias com mais de 300 mm são marcados como suspeitos e ficam fora. A regra admite dias parcialmente incompletos e não substitui uma verificação de duplicatas por horário.
 
 A partir dessa regra, são calculados a proporção de dias aceitos por estação, a média diária entre as estações disponíveis, os dias mais chuvosos e a soma mensal dessa média diária. Há também uma estimativa anual por estação, calculada como média diária × 365, usando estações com pelo menos 365 dias aceitos. Essa estimativa não equivale ao total observado de um ano específico.
 
@@ -180,7 +180,7 @@ As observações abaixo vêm das saídas salvas nos notebooks da pasta [notebook
 | Chuva, tabela completa | **29.345.149** linhas, **33** estações e datas de **01/01/1997 a 03/03/2099** | O máximo de data indica uma anomalia a investigar |
 | Chuva, consulta com corte em julho de 2026 | **1** linha retornada, com data **03/03/2099** | O registro deve ser inspecionado antes de definir seu tratamento |
 | Chuva, acumulado de 15 minutos | **114.409** nulos, **0** negativos e máximo de **588,4 mm** | A saída atual não confirma a hipótese de valores negativos; o extremo também merece investigação |
-| Chuva diária, desde 2021 e valores não negativos | **39.228** combinações de estação e dia; **3.691** com mais de 96 medições; **85,6%** com 90 a 96 | A frequência das medições afeta a comparabilidade dos totais diários |
+| Chuva diária, desde 2021 e valores não negativos | **39.228** combinações de estação e dia; **3.691** com mais de 96 medições (os dias de 5 em 5 minutos a partir de 07/02/2024); **85,6%** com 90 a 96 (regra antiga) | A frequência das medições afeta a comparabilidade dos totais diários |
 | Chuva diária, após os filtros da consulta | Período salvo de **01/01/2021 a 03/06/2024**, sem linhas a partir de 2025 | A série utilizada não cobre todo o período dos chamados |
 | Cadastro de logradouros carregado | **132.000 linhas e 22 colunas**, após excluir as geometrias | A consulta independente de contagem e as verificações do cadastro ainda precisam ser executadas |
 
@@ -191,7 +191,7 @@ As medianas salvas de tempo até o encerramento diminuem de **28,9 dias em 2021*
 ## Decisões e limitações da análise
 
 - **Localização:** medir a perda de registros antes de excluir chamados sem bairro ou logradouro. As colunas `latitude` e `longitude` aparecem na amostra da tabela, mas ainda não são carregadas na consulta principal do recorte desde 2021; sua qualidade precisa ser avaliada.
-- **Datas da chuva:** a consulta diária tem limite inicial em 2021, mas ainda não contém um limite superior explícito. A saída agregada terminar em 2024 não significa que a data de 2099 tenha sido corrigida na origem.
+- **Datas da chuva:** a série salva terminava em 03/06/2024 porque a tabela `taxa_precipitacao_alertario` (15 min) parou de receber dados nessa data; as mesmas estações seguem em `taxa_precipitacao_alertario_5min`. A consulta do notebook 02 agora junta as duas tabelas e tem limite superior (hoje), o que exclui a data de 2099. Na extração do grupo em out/2026, a tabela de 5 min terminava em 17/12/2024: se isso se confirmar, não há chuva pública dos pluviômetros do Alerta Rio para 2025–2026 no BigQuery, e o período comum com os chamados fica limitado a 2021–2024. A nova consulta ainda precisa ser executada.
 - **Cobertura temporal:** comparar apenas o período comum entre chuva e chamados e medir as lacunas. O corte fixo em julho de 2026 usado no diagnóstico não representa permanentemente a definição de “data futura”.
 - **Cobertura das estações:** a média diária da cidade usa as estações com `dia_bom` naquele dia; a composição pode variar. A soma mensal também pode ficar subestimada quando faltam dias.
 - **Definição dos serviços:** a busca por palavras encontrou registros relacionados a árvores em outros tipos. A inclusão desses registros e a harmonização dos subtipos ainda precisam de critérios finais.
