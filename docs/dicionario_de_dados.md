@@ -49,7 +49,7 @@ Descrição das tabelas usadas no projeto, das colunas que analisamos e dos prob
 **Cuidados**
 - Os acumulados de 1 h, 4 h, 24 h e 96 h são **janelas que se sobrepõem**: não somar nem tirar média deles como se fossem medições independentes.
 - Existem valores negativos, provavelmente códigos de erro; são descartados.
-- Algumas estações têm dias com medições faltando ou repetidas. Consideramos "dia bom" o que tem entre 90 e 96 medições.
+- Algumas estações têm dias com medições faltando ou repetidas. Consideramos "dia bom" o que tem pelo menos 90% das medições esperadas: 87 a 96 quando a estação grava a cada 15 minutos, 260 a 288 quando grava a cada 5 minutos (a partir de 07/02/2024). Dias com mais de 300 mm são tratados como erro do sensor.
 
 ---
 
